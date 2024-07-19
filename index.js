@@ -1,5 +1,4 @@
 import { exec } from 'node:child_process';
-import os from "os"
 
 /**
  * This is the main entrypoint to your Probot app
@@ -38,7 +37,7 @@ export default (app) => {
 
       if (stdout == "deployment complete") {
         const params = context.issue({ 
-          body: "PR Deployed 🎉\n\n App running on " + os.networkInterfaces().eth0[0].address + ":5000",
+          body: "PR Deployed 🎉\n\n App running on " + process.env.API_URL + ":5000",
           issue_number: context.payload.pull_request.number,
         });
   
@@ -47,6 +46,5 @@ export default (app) => {
     });
     return;
   });
-
 
 };

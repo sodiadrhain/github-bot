@@ -2,44 +2,44 @@
 
 echo "deployment started"
 
-# set deployment directory
-deployment_dir="/var/deployments"
+# set user
+user=$(whoami)
 
-# switch to root user to give administartor previledges
-sudo su root
+# set deployment directory
+deployment_dir="/home/$user/deployments"
 
 # check if directory exists, remove existing dir and contents
-if [ -d "$deployment_dir" ]; then
-    rm -r deployment_dir
+if [[ -d "$deployment_dir" ]]; then
+    sudo rm -rf $deployment_dir
 fi
 
 # check if container is running and rm
-if [ ! $(docker ps | grep -w $2) ]; then
+if [[ $(docker ps | grep -w $2) ]]; then
     docker container rm $2 -f
 fi
 
 # check if image exists and rm
-if [ ! $(docker image ls | grep -w $2) ]; then
+if [[ $(docker image ls | grep -w $2) ]]; then
     docker image rm $2 -f
 fi
 
 # create directory
-mkdir -p $deployment_dir
+sudo mkdir -p $deployment_dir
 
 # move to deploment dir
 cd $deployment_dir
 
 # clone repository
-git clone $1
+sudo git clone $1
 
 # move to cloned dir
 cd $2
 
 # checkout to main branch
-git checkout main
+sudo git checkout main
 
 # copy dockerfile to cloned folder
-cp -r /github-bot/docker/Dockerfile.py $deployment_dir/Dockerfile
+sudo cp -r /home/$user/github-bot/docker/Dockerfile.py $deployment_dir"/"$2"/Dockerfile"
 
 # run docker build
 docker build --tag $2 .
@@ -48,6 +48,6 @@ docker build --tag $2 .
 docker run -d --name=$2 -p 5000:5000 $2
 
 # check that container is running
-if [ $(docker ps | grep -w $2) ]; then
+if [[ $(docker ps | grep -w $2) ]]; then
     echo "deployment complete"
 fi
